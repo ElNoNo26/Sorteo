@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
     <meta name="theme-color" content="#1e1b4b">
-    <title>Editor Rifa V15 (Organizado)</title>
+    <title>Editor Rifa V16 (Fotos Pro & Delete)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         /* ESTILOS DEL EDITOR (Base oscura) */
@@ -29,7 +29,7 @@
         .nav-scroller { display: flex; overflow-x: auto; gap: 8px; padding: 0 15px; flex: 1; scrollbar-width: none; }
         .nav-pill { white-space: nowrap; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; color: var(--text-light); background: rgba(255,255,255,0.05); transition: 0.2s; border: 1px solid transparent; cursor: pointer; }
         .nav-pill.active { background: var(--primary); color: white; font-weight: 700; border-color: var(--accent); box-shadow: 0 0 10px rgba(139, 92, 246, 0.4); }
-        
+
         /* MAIN */
         main { flex: 1; padding: 10px; overflow-y: auto; padding-bottom: 120px; }
         .panel { display: none; animation: fadeIn 0.3s ease; width: 100%; }
@@ -39,7 +39,7 @@
         /* CARDS & INPUTS */
         .card { background: var(--card-bg); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 10px; }
         h1 { margin: 0 0 10px 0; font-size: 1.4rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
-        h2 { margin: 20px 0 10px 0; font-size: 1.1rem; color: white; border-bottom: 1px solid #334155; padding-bottom: 5px; }
+        h1 span { color: var(--accent); }
         h3 { margin: 0 0 6px 0; color: var(--accent); font-size: 0.9rem; text-transform: uppercase; }
         
         label { display: block; margin-bottom: 2px; font-weight: 600; font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; }
@@ -49,36 +49,41 @@
         .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         .input-group { margin-bottom: 10px; }
 
-        /* SLIDER */
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; padding: 0; margin: 10px 0; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; margin-top: -7px; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #444; border-radius: 2px; }
-
         .btn-primary { background: var(--primary); color: white; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; margin-bottom: 8px; font-size: 0.9rem; }
         .btn-success { background: var(--success); color: white; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; font-size: 0.9rem; }
         .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-light); width: 100%; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
         .btn-download { background: linear-gradient(45deg, #ec4899, #8b5cf6); color: white; width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; font-size: 0.95rem; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3); }
 
-        /* RESTORE NOTICE */
-        .restore-box { background: rgba(251, 191, 36, 0.1); border: 1px solid var(--accent); padding: 10px; border-radius: 8px; margin-top: 10px; text-align: center; display: none; }
-        .restore-box p { margin: 0 0 5px 0; font-size: 0.8rem; color: var(--accent); font-weight: bold; }
-
-        /* GRID NUMEROS EDITOR */
+        /* GRID NUMEROS */
         .ticket-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)); gap: 5px; margin-top: 10px; }
         .ticket-cell { aspect-ratio: 1; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.75rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); position: relative; }
         .ticket-cell.free { background: rgba(16, 185, 129, 0.2); color: var(--free); border-color: var(--free); }
         .ticket-cell.sold { background: rgba(239, 68, 68, 0.2); color: var(--sold); border-color: var(--sold); text-decoration: line-through; opacity: 0.7; }
         .ticket-cell.reserved { background: rgba(245, 158, 11, 0.2); color: var(--reserved); border-color: var(--reserved); }
 
+        /* ESTILOS NUEVOS PARA FOTOS (HISTORIAL) */
+        .upload-zone { border: 2px dashed #444; padding: 25px; text-align: center; border-radius: 12px; background: rgba(0,0,0,0.2); cursor: pointer; transition: 0.2s; }
+        .upload-zone:active { background: rgba(255,255,255,0.05); border-color: var(--primary); }
+        
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 10px 0; }
+        .history-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+        .history-thumb { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; background: #000; border: 1px solid #444; }
+        .history-info { flex: 1; overflow: hidden; }
+        .history-url { font-size: 0.75rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; display: block; }
+        .history-date { font-size: 0.65rem; color: #555; font-weight: bold; }
+        .history-actions { display: flex; gap: 8px; }
+        .btn-icon-sm { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; }
+        .btn-delete-sm { border-color: #7f1d1d; background: #450a0a; color: #f87171; }
+
         /* LISTA PREMIOS */
         .prize-item { background: #0f172a; border: 1px solid var(--accent); padding: 8px; border-radius: 8px; margin-bottom: 8px; display: flex; gap: 10px; align-items: center; }
         .prize-img-sm { width: 45px; height: 45px; object-fit: cover; border-radius: 5px; background: #000; }
 
         /* UI GENERICA */
-        #toast { visibility: hidden; min-width: 250px; background-color: #111; border: 1px solid var(--accent); color: #fff; text-align: center; border-radius: 50px; padding: 12px; position: fixed; z-index: 5000; left: 50%; bottom: 90px; transform: translateX(-50%); font-size: 0.9rem; opacity: 0; transition: 0.3s; font-weight: bold; }
-        #toast.show { visibility: visible; opacity: 1; bottom: 100px; }
+        #toast { visibility: hidden; min-width: 250px; background-color: #111; border: 1px solid var(--accent); color: #fff; text-align: center; border-radius: 50px; padding: 12px; position: fixed; z-index: 5000; left: 50%; bottom: 100px; transform: translateX(-50%); font-size: 0.9rem; opacity: 0; transition: 0.3s; font-weight: bold; }
+        #toast.show { visibility: visible; opacity: 1; bottom: 110px; }
 
-        .fab-container { position: fixed; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--fab-bg); border-top: 1px solid var(--primary); z-index: 1000; padding-bottom: env(safe-area-inset-bottom); height: 70px; }
+        .fab-container { position: fixed; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--fab-bg); border-top: 1px solid var(--primary); z-index: 1000; padding-bottom: env(safe-area-inset-bottom); height: 75px; }
         .fab-btn { background: transparent; border: none; color: #888; padding: 5px 0; font-size: 0.65rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; justify-content: center; }
         .fab-icon { font-size: 1.3rem; margin-bottom: 2px; }
 
@@ -108,8 +113,8 @@
         <div class="nav-scroller">
             <div class="nav-pill active" onclick="switchPanel(0)">📊 Panel</div>
             <div class="nav-pill" onclick="switchPanel(1)">⚙️ Datos</div>
-            <div class="nav-pill" onclick="switchPanel(2)">🏆 Premios & Números</div>
-            <div class="nav-pill" onclick="switchPanel(3)">📸 WebP Converter</div>
+            <div class="nav-pill" onclick="switchPanel(2)">🏆 Premios</div>
+            <div class="nav-pill" onclick="switchPanel(3)">📸 Fotos</div>
         </div>
     </div>
 
@@ -237,7 +242,7 @@
             </div>
             <div id="prizes-list"></div>
 
-            <h2>Control de Números</h2>
+            <h2 style="margin-top:30px; border-bottom:1px solid #334155; padding-bottom:5px;">Control de Números</h2>
             <div class="card">
                 <div style="display:flex; align-items:end; gap:10px; margin-bottom:10px;">
                     <div style="flex:1;">
@@ -259,20 +264,24 @@
 
         <!-- PANEL 3: FOTOS (WEB CONVERTER) -->
         <div id="panel-3" class="panel">
-            <h1>WebP Converter</h1>
-            <div class="card">
-                <p style="font-size:0.9rem; margin-bottom:15px; color:#ccc;">
-                    Convierte tus fotos a <b>formato WebP (super ligero)</b> y las sube a GitHub automáticamente para obtener un link rápido.
-                </p>
-                <div style="border:2px dashed #444; padding:20px; text-align:center; cursor:pointer;" onclick="document.getElementById('imgInput').click()">
-                    📸 TOCAR PARA SUBIR Y CONVERTIR
+            <h1>FOTOS & <span>HISTORIAL</span></h1>
+            
+            <div class="card" style="background:#1e1b29; border:1px solid #333;">
+                <p style="font-size:0.85rem; color:#aaa; margin-bottom:15px;">Sube fotos y mantén un registro histórico recuperable.</p>
+                <div class="upload-zone" onclick="document.getElementById('imgInput').click()">
+                    <span style="font-size:1.2rem;">📸</span> SUBIR NUEVA FOTO
                 </div>
                 <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="uploadImage(this)">
-                
-                <div id="upload-status" style="margin-top:10px; color:var(--accent);"></div>
+                <div id="upload-status" style="margin-top:10px; color:var(--accent); text-align:center; font-size:0.8rem;"></div>
             </div>
-            <h3>Historial de Subidas</h3>
-            <div id="history-list" style="display:flex; flex-direction:column; gap:5px;"></div>
+
+            <div class="history-header">
+                <h3 style="margin:0; display:flex; align-items:center; gap:5px;">📂 HISTORIAL COMPLETO</h3>
+                <button class="btn-outline" style="width:auto; padding:4px 10px; font-size:0.7rem;" onclick="clearHistory()">Limpiar Todo</button>
+            </div>
+            <p style="font-size:0.7rem; color:#666; margin-bottom:15px;">Toca la foto para verla. Usa la "X" para borrar del historial Y de GitHub.</p>
+            
+            <div id="history-list"></div>
         </div>
     </main>
 
@@ -545,7 +554,7 @@
         function checkLogin() {
             if(document.getElementById('login-pass').value === (localStorage.getItem('rifa_pass') || '1234')) {
                 document.getElementById('login-screen').style.display = 'none';
-                checkForDraft(); // Check if there is data to restore
+                checkForDraft(); 
                 loadGithubConfig();
             } else alert('Contraseña incorrecta');
         }
@@ -564,10 +573,8 @@
         function checkForDraft() {
             const d = localStorage.getItem('rifa_draft');
             if(d) {
-                // If saved data exists, show the notice box
                 document.getElementById('restore-notice').style.display = 'block';
-                // By default we loaded defaultDB, so UI is empty. User must click "Restore"
-                refreshUI(); // Show empty UI initially
+                refreshUI(); 
             } else {
                 refreshUI();
             }
@@ -629,7 +636,7 @@
             db.config.banner = document.getElementById('cfg-banner').value;
             
             localStorage.setItem('rifa_draft', JSON.stringify(db));
-            document.getElementById('restore-notice').style.display = 'none'; // Hide notice if we just saved
+            document.getElementById('restore-notice').style.display = 'none'; 
             if(notify) showToast("Guardado localmente");
         }
 
@@ -637,7 +644,7 @@
             const d = localStorage.getItem('rifa_draft');
             if(d) {
                 db = JSON.parse(d);
-                document.getElementById('restore-notice').style.display = 'none'; // Hide after loading
+                document.getElementById('restore-notice').style.display = 'none'; 
                 refreshUI();
                 showToast("Datos restaurados");
             }
@@ -646,9 +653,8 @@
         function resetDefault() {
             if(confirm("¿Borrar todo y empezar de cero?")) {
                 db = JSON.parse(JSON.stringify(defaultDB));
-                // We do NOT save to draft immediately to prevent overwriting saved data by mistake
                 refreshUI();
-                document.getElementById('restore-notice').style.display = 'none'; // Hide restore
+                document.getElementById('restore-notice').style.display = 'none'; 
             }
         }
 
@@ -782,9 +788,15 @@
                         });
                         const res = await req.json();
                         if(req.ok) {
-                            db.images.unshift(res.content.download_url);
+                            // Guardamos OBJETO con metadatos para poder borrarlo luego
+                            db.images.unshift({
+                                url: res.content.download_url,
+                                path: res.content.path,
+                                sha: res.content.sha,
+                                date: new Date().toLocaleString()
+                            });
                             saveToDraft(false); renderHistory();
-                            document.getElementById('upload-status').innerText = "✅ Subida OK. Copia el link abajo.";
+                            document.getElementById('upload-status').innerText = "✅ Subida OK.";
                         } else alert("Error GitHub: " + res.message);
                     } catch(err) { alert("Error red"); }
                 }
@@ -793,13 +805,69 @@
         }
 
         function renderHistory() {
-            document.getElementById('history-list').innerHTML = (db.images||[]).map(url => `
-                <div style="display:flex; gap:10px; background:#222; padding:5px; align-items:center; border-radius:5px;">
-                    <img src="${url}" style="width:40px; height:40px; object-fit:cover;">
-                    <input type="text" value="${url}" readonly style="margin:0; font-size:0.7rem;">
-                    <button onclick="navigator.clipboard.writeText('${url}'); showToast('Copiado')" style="padding:5px;">📋</button>
+            document.getElementById('history-list').innerHTML = (db.images||[]).map((imgObj, idx) => {
+                // Compatibilidad con versiones viejas (si solo guardabamos string)
+                const url = typeof imgObj === 'string' ? imgObj : imgObj.url;
+                const date = typeof imgObj === 'string' ? '---' : (imgObj.date || '---');
+                
+                return `
+                <div class="history-card">
+                    <img src="${url}" class="history-thumb" onclick="window.open('${url}','_blank')">
+                    <div class="history-info">
+                        <span class="history-url">${url}</span>
+                        <span class="history-date">${date}</span>
+                    </div>
+                    <div class="history-actions">
+                        <button class="btn-icon-sm" onclick="navigator.clipboard.writeText('${url}'); showToast('Copiado')">📋</button>
+                        <button class="btn-icon-sm btn-delete-sm" onclick="deleteImage(${idx})">✖</button>
+                    </div>
                 </div>
-            `).join('');
+            `}).join('');
+        }
+
+        async function deleteImage(index) {
+            const imgData = db.images[index];
+            const isObj = typeof imgData === 'object';
+            const url = isObj ? imgData.url : imgData;
+            
+            if(!confirm("¿Borrar esta imagen? Se eliminará de la lista y de GitHub.")) return;
+
+            // Intentar borrar de GitHub
+            const gh = JSON.parse(localStorage.getItem('rifa_github')||'{}');
+            if(gh.token && isObj && imgData.path) {
+                // Tenemos path, intentamos obtener SHA fresco
+                try {
+                    showToast("Borrando de GitHub...");
+                    const getUrl = `https://api.github.com/repos/${gh.user}/${gh.repo}/contents/${imgData.path}`;
+                    const getReq = await fetch(getUrl, { headers: { Authorization: `token ${gh.token}`}});
+                    
+                    if(getReq.ok) {
+                        const fileData = await getReq.json();
+                        const sha = fileData.sha;
+                        
+                        // Delete call
+                        await fetch(getUrl, {
+                            method: 'DELETE',
+                            headers: { Authorization: `token ${gh.token}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ message: "Delete image via Editor", sha: sha })
+                        });
+                    }
+                } catch(e) { console.log("Error deleting remote", e); }
+            }
+
+            // Borrar local
+            db.images.splice(index, 1);
+            saveToDraft(false);
+            renderHistory();
+            showToast("Imagen eliminada");
+        }
+        
+        function clearHistory() {
+            if(confirm("¿Limpiar todo el historial local? (No borra de GitHub)")) {
+                db.images = [];
+                saveToDraft(false);
+                renderHistory();
+            }
         }
 
         function pasteImage() { navigator.clipboard.readText().then(t => document.getElementById('pz-img').value = t); }
