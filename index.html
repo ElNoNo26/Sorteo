@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
     <meta name="theme-color" content="#1e1b4b">
-    <title>Editor Rifa V16 (Fotos Pro & Delete)</title>
+    <title>Editor Rifa V18 (Final Layout)</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
         /* ESTILOS DEL EDITOR (Base oscura) */
@@ -29,9 +29,9 @@
         .nav-scroller { display: flex; overflow-x: auto; gap: 8px; padding: 0 15px; flex: 1; scrollbar-width: none; }
         .nav-pill { white-space: nowrap; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; color: var(--text-light); background: rgba(255,255,255,0.05); transition: 0.2s; border: 1px solid transparent; cursor: pointer; }
         .nav-pill.active { background: var(--primary); color: white; font-weight: 700; border-color: var(--accent); box-shadow: 0 0 10px rgba(139, 92, 246, 0.4); }
-
+        
         /* MAIN */
-        main { flex: 1; padding: 10px; overflow-y: auto; padding-bottom: 120px; }
+        main { flex: 1; padding: 10px; overflow-y: auto; padding-bottom: 120px; touch-action: pan-y; }
         .panel { display: none; animation: fadeIn 0.3s ease; width: 100%; }
         .panel.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -48,12 +48,21 @@
 
         .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
         .input-group { margin-bottom: 10px; }
+        
+        /* ESTILO BOTONES INPUT */
+        .input-with-btn { display: flex; gap: 8px; align-items: center; }
+        .input-with-btn input { margin-bottom: 0; flex: 1; }
+        .input-with-btn button { flex-shrink: 0; width: 42px; height: 38px; display: flex; align-items: center; justify-content: center; margin: 0; font-size: 1.1rem; }
+
+        /* SLIDER */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; padding: 0; margin: 10px 0; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; margin-top: -7px; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #444; border-radius: 2px; }
 
         .btn-primary { background: var(--primary); color: white; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; margin-bottom: 8px; font-size: 0.9rem; }
         .btn-success { background: var(--success); color: white; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; font-size: 0.9rem; }
         .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-light); width: 100%; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
-        .btn-download { background: linear-gradient(45deg, #ec4899, #8b5cf6); color: white; width: 100%; padding: 12px; border-radius: 8px; font-weight: 800; border: none; cursor: pointer; font-size: 0.95rem; margin-bottom: 10px; box-shadow: 0 4px 10px rgba(236, 72, 153, 0.3); }
-
+        
         /* GRID NUMEROS */
         .ticket-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)); gap: 5px; margin-top: 10px; }
         .ticket-cell { aspect-ratio: 1; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.75rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); position: relative; }
@@ -61,11 +70,13 @@
         .ticket-cell.sold { background: rgba(239, 68, 68, 0.2); color: var(--sold); border-color: var(--sold); text-decoration: line-through; opacity: 0.7; }
         .ticket-cell.reserved { background: rgba(245, 158, 11, 0.2); color: var(--reserved); border-color: var(--reserved); }
 
-        /* ESTILOS NUEVOS PARA FOTOS (HISTORIAL) */
+        /* ESTILOS HISTORIAL */
         .upload-zone { border: 2px dashed #444; padding: 25px; text-align: center; border-radius: 12px; background: rgba(0,0,0,0.2); cursor: pointer; transition: 0.2s; }
         .upload-zone:active { background: rgba(255,255,255,0.05); border-color: var(--primary); }
         
+        /* CABECERA HISTORIAL AJUSTADA */
         .history-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 10px 0; }
+        
         .history-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
         .history-thumb { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; background: #000; border: 1px solid #444; }
         .history-info { flex: 1; overflow: hidden; }
@@ -97,6 +108,9 @@
 <body>
 
     <div id="toast">💾 Guardado con éxito</div>
+    
+    <!-- INPUT GLOBAL PARA SUBIR FOTOS -->
+    <input type="file" id="globalImgInput" accept="image/*" style="display:none" onchange="uploadImage(this)">
 
     <!-- LOGIN -->
     <div id="login-screen">
@@ -114,10 +128,11 @@
             <div class="nav-pill active" onclick="switchPanel(0)">📊 Panel</div>
             <div class="nav-pill" onclick="switchPanel(1)">⚙️ Datos</div>
             <div class="nav-pill" onclick="switchPanel(2)">🏆 Premios</div>
-            <div class="nav-pill" onclick="switchPanel(3)">📸 Fotos</div>
+            <div class="nav-pill" onclick="switchPanel(3)">📸 WebP</div>
         </div>
     </div>
 
+    <!-- MAIN CON ID PARA TOUCH EVENT -->
     <main id="main-editor">
         <!-- PANEL 0: DASHBOARD -->
         <div id="panel-0" class="panel active">
@@ -127,9 +142,6 @@
                 <div style="font-size: 1.1rem; font-weight: 800;">👁️ Vista Previa</div>
                 <div style="font-size: 0.8rem; opacity: 0.8;">Ver cambios antes de publicar</div>
             </div>
-
-            <!-- Boton Descargar HTML -->
-            <button class="btn-download" onclick="downloadIndex()">📥 DESCARGAR INDEX.HTML</button>
 
             <div class="card" style="display:flex; gap:10px; text-align:center;">
                 <div style="flex:1; background:#111; padding:8px; border-radius:8px;">
@@ -151,7 +163,6 @@
                 <p style="font-size:0.75rem; color:#aaa; margin-bottom:10px;">Basado en números vendidos.</p>
                 <button class="btn-outline" style="border-color:var(--danger); color:var(--danger);" onclick="resetDefault()">⚠️ REINICIAR DE FÁBRICA</button>
                 
-                <!-- AVISO DE RESTAURACION -->
                 <div id="restore-notice" class="restore-box">
                     <p>💾 Se encontraron datos guardados</p>
                     <button class="btn-primary" style="margin:0;" onclick="loadDraft()">RESTAURAR BORRADOR</button>
@@ -163,23 +174,25 @@
         <div id="panel-1" class="panel">
             <h1>Configuración</h1>
             <div class="card">
-                <!-- TITULO -->
                 <div class="input-group">
                     <label>Título (Texto)</label>
                     <input type="text" id="cfg-title" oninput="saveToDraft(false)" placeholder="Ej: Gran Rifa Solidaria">
                 </div>
 
-                <!-- LOGO COMPACTO -->
                 <div class="input-group" style="background:rgba(0,0,0,0.2); padding:8px; border-radius:8px; border:1px solid #334155;">
                     <label style="color:var(--accent)">URL Logo (Opcional)</label>
-                    <input type="text" id="cfg-logo" oninput="saveToDraft(false)" placeholder="https://..." style="margin-bottom:5px;">
-                    <div style="display:flex; align-items:center; gap:10px;">
+                    <!-- LAYOUT MODIFICADO: INPUT + NUBE + PEGAR -->
+                    <div class="input-with-btn">
+                        <input type="text" id="cfg-logo" oninput="saveToDraft(false)" placeholder="https://..." style="margin:0;">
+                        <button class="btn-outline" onclick="triggerUpload('cfg-logo')">☁️</button>
+                        <button class="btn-outline" onclick="pasteToInput('cfg-logo')">📋</button>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
                         <label style="margin:0; min-width:70px;">Tamaño: <span id="logo-scale-val">50</span>%</label>
                         <input type="range" id="cfg-logo-scale" min="10" max="100" step="5" value="50" oninput="updateScaleVal(this.value); saveToDraft(false);" style="margin:0;">
                     </div>
                 </div>
 
-                <!-- FILA 1: PRECIO Y FECHA -->
                 <div class="input-row">
                     <div>
                         <label>Precio ($)</label>
@@ -191,7 +204,6 @@
                     </div>
                 </div>
 
-                <!-- FILA 2: CBU Y WHATSAPP -->
                 <div class="input-row">
                     <div>
                         <label>Alias / CBU</label>
@@ -213,7 +225,12 @@
 
                 <div class="input-group">
                     <label>Banner Principal (URL)</label>
-                    <input type="text" id="cfg-banner" oninput="saveToDraft(false)">
+                    <!-- LAYOUT MODIFICADO: INPUT + NUBE + PEGAR -->
+                    <div class="input-with-btn">
+                        <input type="text" id="cfg-banner" oninput="saveToDraft(false)" style="margin:0;">
+                        <button class="btn-outline" onclick="triggerUpload('cfg-banner')">☁️</button>
+                        <button class="btn-outline" onclick="pasteToInput('cfg-banner')">📋</button>
+                    </div>
                 </div>
             </div>
 
@@ -227,7 +244,6 @@
                 <button class="btn-primary" style="background:#3b82f6; margin-bottom:0;" onclick="saveGithubConfig()">💾 Guardar API</button>
             </div>
 
-            <!-- SEGURIDAD (Nuevo Ubicación) -->
             <div class="card" style="border-color: #f59e0b; background:#0f172a;">
                 <h3 style="color:#f59e0b; margin-top:0;">🔐 Seguridad</h3>
                 <button class="btn-outline" style="width:100%; margin:0;" onclick="openPassModal()">CAMBIAR CONTRASEÑA DE ACCESO</button>
@@ -268,16 +284,19 @@
             
             <div class="card" style="background:#1e1b29; border:1px solid #333;">
                 <p style="font-size:0.85rem; color:#aaa; margin-bottom:15px;">Sube fotos y mantén un registro histórico recuperable.</p>
-                <div class="upload-zone" onclick="document.getElementById('imgInput').click()">
+                <div class="upload-zone" onclick="triggerUpload(null)">
                     <span style="font-size:1.2rem;">📸</span> SUBIR NUEVA FOTO
                 </div>
-                <input type="file" id="imgInput" accept="image/*" style="display:none" onchange="uploadImage(this)">
                 <div id="upload-status" style="margin-top:10px; color:var(--accent); text-align:center; font-size:0.8rem;"></div>
             </div>
 
+            <!-- CABECERA MODIFICADA: HISTORIAL IZQ, LIMPIAR DER, SIN PEGAR -->
             <div class="history-header">
-                <h3 style="margin:0; display:flex; align-items:center; gap:5px;">📂 HISTORIAL COMPLETO</h3>
-                <button class="btn-outline" style="width:auto; padding:4px 10px; font-size:0.7rem;" onclick="clearHistory()">Limpiar Todo</button>
+                <!-- Izquierda: Título -->
+                <h3 style="margin:0; display:flex; align-items:center; gap:5px;">📂 HISTORIAL</h3>
+                
+                <!-- Derecha: Limpiar Todo -->
+                <button class="btn-outline" style="width:auto; border-color:var(--danger); color:var(--danger); padding:4px 10px; font-size:0.7rem;" onclick="clearHistory()">🗑️ Limpiar Todo</button>
             </div>
             <p style="font-size:0.7rem; color:#666; margin-bottom:15px;">Toca la foto para verla. Usa la "X" para borrar del historial Y de GitHub.</p>
             
@@ -286,11 +305,12 @@
     </main>
 
     <!-- FAB -->
-    <div class="fab-container">
+    <div class="fab-container" style="grid-template-columns: repeat(5, 1fr);">
         <button class="fab-btn" onclick="saveToDraft(true)"><span class="fab-icon">💾</span>Guardar</button>
         <button class="fab-btn" style="color:#60a5fa;" onclick="publishSite()"><span class="fab-icon">🚀</span>Publicar</button>
         <button class="fab-btn" onclick="exportBackup()"><span class="fab-icon">📥</span>Backup</button>
         <button class="fab-btn" onclick="document.getElementById('importFile').click()"><span class="fab-icon">📤</span>Restaurar</button>
+        <button class="fab-btn" onclick="downloadIndex()"><span class="fab-icon">⬇️</span>Index</button>
     </div>
     <input type="file" id="importFile" style="display:none" onchange="importData(this)">
 
@@ -305,9 +325,11 @@
             <label>Descripción</label>
             <input type="text" id="pz-title" placeholder="Ej: Play Station 5">
             <label>Imagen (URL)</label>
-            <div style="display:flex; gap:5px;">
+            <!-- LAYOUT MODIFICADO: INPUT + NUBE + PEGAR -->
+            <div class="input-with-btn">
                 <input type="text" id="pz-img" placeholder="https://..." style="margin:0;">
-                <button class="btn-outline" style="width:auto; margin:0;" onclick="pasteImage()">📋</button>
+                <button class="btn-outline" onclick="triggerUpload('pz-img')">☁️</button>
+                <button class="btn-outline" onclick="pasteToInput('pz-img')">📋</button>
             </div>
             <div style="margin-top:20px; display:flex; gap:10px;">
                 <button class="btn-success" onclick="savePrize()">GUARDAR</button>
@@ -549,6 +571,8 @@
         };
         
         let db = JSON.parse(JSON.stringify(defaultDB));
+        let uploadTargetInput = null; // Para saber qué input rellenar al subir
+        let currentPanelIndex = 0; // Para el swipe
 
         // --- AUTH & INIT ---
         function checkLogin() {
@@ -580,12 +604,33 @@
             }
         }
 
-        // --- CORE UI ---
+        // --- CORE UI & SWIPE LOGIC ---
         function switchPanel(idx) {
+            currentPanelIndex = idx;
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.getElementById('panel-'+idx).classList.add('active');
             document.querySelectorAll('.nav-pill').forEach((n,i) => i===idx ? n.classList.add('active') : n.classList.remove('active'));
         }
+
+        // SWIPE IMPLEMENTATION
+        let touchStartX = 0;
+        const mainEl = document.getElementById('main-editor');
+        
+        mainEl.addEventListener('touchstart', e => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, {passive: true});
+
+        mainEl.addEventListener('touchend', e => {
+            const touchEndX = e.changedTouches[0].screenX;
+            const threshold = 50; 
+            if (touchEndX < touchStartX - threshold) { // Swipe Left -> Next
+                if(currentPanelIndex < 3) switchPanel(currentPanelIndex + 1);
+            }
+            if (touchEndX > touchStartX + threshold) { // Swipe Right -> Prev
+                if(currentPanelIndex > 0) switchPanel(currentPanelIndex - 1);
+            }
+        }, {passive: true});
+
 
         function updateScaleVal(val) {
             document.getElementById('logo-scale-val').innerText = val;
@@ -757,6 +802,25 @@
             showToast("API Guardada");
         }
 
+        // FUNCIÓN GLOBAL PARA DISPARAR SUBIDA
+        function triggerUpload(targetId) {
+            uploadTargetInput = targetId;
+            document.getElementById('globalImgInput').click();
+        }
+
+        async function pasteToInput(targetId) {
+            try {
+                const text = await navigator.clipboard.readText();
+                if(text) {
+                    document.getElementById(targetId).value = text;
+                    saveToDraft(false);
+                    showToast("Pegado");
+                }
+            } catch (e) {
+                alert("Permiso denegado o no soportado: " + e);
+            }
+        }
+
         async function uploadImage(input) {
             if(!input.files[0]) return;
             const file = input.files[0];
@@ -788,14 +852,27 @@
                         });
                         const res = await req.json();
                         if(req.ok) {
-                            // Guardamos OBJETO con metadatos para poder borrarlo luego
-                            db.images.unshift({
+                            // Guardamos OBJETO con metadatos
+                            const newImg = {
                                 url: res.content.download_url,
                                 path: res.content.path,
                                 sha: res.content.sha,
                                 date: new Date().toLocaleString()
-                            });
-                            saveToDraft(false); renderHistory();
+                            };
+                            db.images.unshift(newImg);
+                            
+                            // Si se disparó desde un input específico, rellenarlo
+                            if(uploadTargetInput) {
+                                document.getElementById(uploadTargetInput).value = newImg.url;
+                                saveToDraft(false);
+                                uploadTargetInput = null; // Resetear target
+                                // Si era logo, actualizar vista previa si aplica
+                                refreshUI();
+                            } else {
+                                saveToDraft(false);
+                            }
+                            
+                            renderHistory();
                             document.getElementById('upload-status').innerText = "✅ Subida OK.";
                         } else alert("Error GitHub: " + res.message);
                     } catch(err) { alert("Error red"); }
@@ -806,7 +883,6 @@
 
         function renderHistory() {
             document.getElementById('history-list').innerHTML = (db.images||[]).map((imgObj, idx) => {
-                // Compatibilidad con versiones viejas (si solo guardabamos string)
                 const url = typeof imgObj === 'string' ? imgObj : imgObj.url;
                 const date = typeof imgObj === 'string' ? '---' : (imgObj.date || '---');
                 
@@ -828,14 +904,11 @@
         async function deleteImage(index) {
             const imgData = db.images[index];
             const isObj = typeof imgData === 'object';
-            const url = isObj ? imgData.url : imgData;
             
             if(!confirm("¿Borrar esta imagen? Se eliminará de la lista y de GitHub.")) return;
 
-            // Intentar borrar de GitHub
             const gh = JSON.parse(localStorage.getItem('rifa_github')||'{}');
             if(gh.token && isObj && imgData.path) {
-                // Tenemos path, intentamos obtener SHA fresco
                 try {
                     showToast("Borrando de GitHub...");
                     const getUrl = `https://api.github.com/repos/${gh.user}/${gh.repo}/contents/${imgData.path}`;
@@ -844,8 +917,6 @@
                     if(getReq.ok) {
                         const fileData = await getReq.json();
                         const sha = fileData.sha;
-                        
-                        // Delete call
                         await fetch(getUrl, {
                             method: 'DELETE',
                             headers: { Authorization: `token ${gh.token}`, 'Content-Type': 'application/json' },
@@ -855,7 +926,6 @@
                 } catch(e) { console.log("Error deleting remote", e); }
             }
 
-            // Borrar local
             db.images.splice(index, 1);
             saveToDraft(false);
             renderHistory();
@@ -870,8 +940,6 @@
             }
         }
 
-        function pasteImage() { navigator.clipboard.readText().then(t => document.getElementById('pz-img').value = t); }
-
         function exportBackup() {
             const blob = new Blob([JSON.stringify(db)], {type:'application/json'});
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='rifa-backup.json'; a.click();
@@ -885,7 +953,6 @@
         function getHtml() {
             let tpl = document.getElementById('master-template').value;
             
-            // Build Prizes HTML
             let prizesHtml = db.prizes.map(p => {
                 let rankText = p.rank;
                 if(p.rank === '1' || p.rank === 1) rankText = '1° PREMIO';
@@ -910,18 +977,15 @@
                 </div>
             `}).join('');
             
-            // Build Grid HTML
             let gridHtml = '';
             for(let i=0; i<db.tickets.total; i++) {
                 const st = db.tickets.status[i] || 'free';
                 const displayNum = i + 1;
                 const pad = displayNum < 10 ? '0' + displayNum : displayNum;
-                
                 const action = st === 'free' ? `onclick="toggleTicket('${pad}', this)"` : '';
                 gridHtml += `<div class="ticket-cell ${st}" ${action}>${pad}</div>`;
             }
 
-            // LOGICA LOGO VS TITULO + ESCALADO
             let titleOrLogoHtml = '';
             if(db.config.logo && db.config.logo.length > 5) {
                 const scale = db.config.logoScale || 50;
@@ -933,11 +997,9 @@
                     </h1>`;
             }
             
-            // Whatsapp Link Logic (AUTO +549)
             const waClean = db.config.whatsapp.replace(/[^0-9]/g, '');
             const waFinal = '549' + waClean; 
 
-            // Replace
             tpl = tpl.replace('DB_TITLE_OR_LOGO_PLACEHOLDER', titleOrLogoHtml)
                      .replace('${db.config.title}', db.config.title) 
                      .replace('${db.config.title}', db.config.title) 
@@ -987,7 +1049,6 @@
             showToast("Subiendo index.html...");
             
             try {
-                // Get SHA first
                 const url = `https://api.github.com/repos/${gh.user}/${gh.repo}/contents/index.html`;
                 const getReq = await fetch(url, { headers: { Authorization: `token ${gh.token}`}});
                 const getData = getReq.ok ? await getReq.json() : {};
