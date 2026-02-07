@@ -1,363 +1,9 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"> 
-    <meta name="theme-color" content="#1e1b4b">
-    <title>Editor Rifa V18 (Final Layout)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
-    <style>
-        /* ESTILOS DEL EDITOR (Base oscura) */
-        :root { 
-            --bg: #0f172a; --sidebar: #1e1b4b; --text: #ffffff; --text-light: #94a3b8;  
-            --card-bg: #1e293b; --input-bg: #334155; --border-color: #475569;
-            --primary: #8b5cf6; --accent: #fbbf24; --danger: #ef4444; --success: #10b981; --fab-bg: #020617;      
-            --sold: #ef4444; --reserved: #f59e0b; --free: #10b981;
-        }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; margin: 0; overflow: hidden; font-size: 14px; }
-        
-        /* LOGIN */
-        #login-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; background-image: radial-gradient(circle at center, #312e81 0%, #000 80%); padding-bottom: 20vh; }
-        .login-box { width: 85%; max-width: 280px; text-align: center; }
-        .login-avatar { width: 80px; height: 80px; background: var(--primary); border-radius: 50%; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: 0 0 25px rgba(139, 92, 246, 0.6); border: 2px solid var(--accent); }
-        .login-input { background: #222 !important; border: 1px solid #444; color: white !important; padding: 12px; border-radius: 10px; width: 100%; font-size: 1.2rem; text-align: center; letter-spacing: 5px; outline: none; margin-bottom: 15px; }
-        .btn-login { background: linear-gradient(to right, var(--primary), #4c1d95); color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: 800; font-size: 1rem; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 15px rgba(139, 92, 246, 0.4); }
-
-        /* NAV */
-        .mobile-header { background: var(--sidebar); padding: 10px 0; border-bottom: 1px solid var(--primary); display: flex; align-items: center; z-index: 100; flex-shrink: 0; padding-right: 15px; }
-        .nav-scroller { display: flex; overflow-x: auto; gap: 8px; padding: 0 15px; flex: 1; scrollbar-width: none; }
-        .nav-pill { white-space: nowrap; padding: 8px 16px; border-radius: 20px; font-size: 0.85rem; color: var(--text-light); background: rgba(255,255,255,0.05); transition: 0.2s; border: 1px solid transparent; cursor: pointer; }
-        .nav-pill.active { background: var(--primary); color: white; font-weight: 700; border-color: var(--accent); box-shadow: 0 0 10px rgba(139, 92, 246, 0.4); }
-        
-        /* MAIN */
-        main { flex: 1; padding: 10px; overflow-y: auto; padding-bottom: 120px; touch-action: pan-y; }
-        .panel { display: none; animation: fadeIn 0.3s ease; width: 100%; }
-        .panel.active { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* CARDS & INPUTS */
-        .card { background: var(--card-bg); padding: 12px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 10px; }
-        h1 { margin: 0 0 10px 0; font-size: 1.4rem; font-weight: 800; color: var(--primary); letter-spacing: -0.5px; }
-        h1 span { color: var(--accent); }
-        h3 { margin: 0 0 6px 0; color: var(--accent); font-size: 0.9rem; text-transform: uppercase; }
-        
-        label { display: block; margin-bottom: 2px; font-weight: 600; font-size: 0.7rem; color: var(--text-light); text-transform: uppercase; }
-        input, textarea, select { width: 100%; padding: 8px 10px; margin-bottom: 0; border: 1px solid var(--border-color); border-radius: 6px; font-size: 0.9rem; background: var(--input-bg); color: white; outline: none; font-family: inherit; }
-        input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2); }
-
-        .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-        .input-group { margin-bottom: 10px; }
-        
-        /* ESTILO BOTONES INPUT */
-        .input-with-btn { display: flex; gap: 8px; align-items: center; }
-        .input-with-btn input { margin-bottom: 0; flex: 1; }
-        .input-with-btn button { flex-shrink: 0; width: 42px; height: 38px; display: flex; align-items: center; justify-content: center; margin: 0; font-size: 1.1rem; }
-
-        /* SLIDER */
-        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; padding: 0; margin: 10px 0; }
-        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 18px; width: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; margin-top: -7px; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
-        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: #444; border-radius: 2px; }
-
-        .btn-primary { background: var(--primary); color: white; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; margin-bottom: 8px; font-size: 0.9rem; }
-        .btn-success { background: var(--success); color: white; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; border: none; cursor: pointer; font-size: 0.9rem; }
-        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-light); width: 100%; padding: 8px; border-radius: 8px; cursor: pointer; font-size: 0.9rem; }
-        
-        /* GRID NUMEROS */
-        .ticket-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(35px, 1fr)); gap: 5px; margin-top: 10px; }
-        .ticket-cell { aspect-ratio: 1; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.75rem; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); position: relative; }
-        .ticket-cell.free { background: rgba(16, 185, 129, 0.2); color: var(--free); border-color: var(--free); }
-        .ticket-cell.sold { background: rgba(239, 68, 68, 0.2); color: var(--sold); border-color: var(--sold); text-decoration: line-through; opacity: 0.7; }
-        .ticket-cell.reserved { background: rgba(245, 158, 11, 0.2); color: var(--reserved); border-color: var(--reserved); }
-
-        /* ESTILOS HISTORIAL */
-        .upload-zone { border: 2px dashed #444; padding: 25px; text-align: center; border-radius: 12px; background: rgba(0,0,0,0.2); cursor: pointer; transition: 0.2s; }
-        .upload-zone:active { background: rgba(255,255,255,0.05); border-color: var(--primary); }
-        
-        /* CABECERA HISTORIAL AJUSTADA */
-        .history-header { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 10px 0; }
-        
-        .history-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 10px; display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
-        .history-thumb { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; background: #000; border: 1px solid #444; }
-        .history-info { flex: 1; overflow: hidden; }
-        .history-url { font-size: 0.75rem; color: #94a3b8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; display: block; }
-        .history-date { font-size: 0.65rem; color: #555; font-weight: bold; }
-        .history-actions { display: flex; gap: 8px; }
-        .btn-icon-sm { width: 36px; height: 36px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; }
-        .btn-delete-sm { border-color: #7f1d1d; background: #450a0a; color: #f87171; }
-
-        /* LISTA PREMIOS */
-        .prize-item { background: #0f172a; border: 1px solid var(--accent); padding: 8px; border-radius: 8px; margin-bottom: 8px; display: flex; gap: 10px; align-items: center; }
-        .prize-img-sm { width: 45px; height: 45px; object-fit: cover; border-radius: 5px; background: #000; }
-
-        /* UI GENERICA */
-        #toast { visibility: hidden; min-width: 250px; background-color: #111; border: 1px solid var(--accent); color: #fff; text-align: center; border-radius: 50px; padding: 12px; position: fixed; z-index: 5000; left: 50%; bottom: 100px; transform: translateX(-50%); font-size: 0.9rem; opacity: 0; transition: 0.3s; font-weight: bold; }
-        #toast.show { visibility: visible; opacity: 1; bottom: 110px; }
-
-        .fab-container { position: fixed; bottom: 0; left: 0; right: 0; display: grid; grid-template-columns: repeat(5, 1fr); background: var(--fab-bg); border-top: 1px solid var(--primary); z-index: 1000; padding-bottom: env(safe-area-inset-bottom); height: 75px; }
-        .fab-btn { background: transparent; border: none; color: #888; padding: 5px 0; font-size: 0.65rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; justify-content: center; }
-        .fab-icon { font-size: 1.3rem; margin-bottom: 2px; }
-
-        /* MODAL */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); }
-        .modal-overlay.open { display: flex; }
-        .modal-content { background: var(--card-bg); width: 95%; max-width: 500px; max-height: 90vh; border-radius: 15px; border: 1px solid var(--primary); display: flex; flex-direction: column; overflow: hidden; padding: 20px; overflow-y: auto; }
-        .preview-box { background: rgba(59, 130, 246, 0.1); border: 2px dashed #3b82f6; color: #3b82f6; padding: 15px; border-radius: 12px; text-align: center; margin-bottom: 15px; cursor: pointer; }
-    </style>
-</head>
-<body>
-
-    <div id="toast">💾 Guardado con éxito</div>
-    
-    <!-- INPUT GLOBAL PARA SUBIR FOTOS -->
-    <input type="file" id="globalImgInput" accept="image/*" style="display:none" onchange="uploadImage(this)">
-
-    <!-- LOGIN -->
-    <div id="login-screen">
-        <div class="login-box">
-            <div class="login-avatar">🎫</div>
-            <h2 style="color:white; margin-bottom:25px; font-weight:800;">RIFA MANAGER</h2>
-            <input type="password" id="login-pass" class="login-input" placeholder="****" inputmode="numeric">
-            <button class="btn-login" onclick="checkLogin()">INGRESAR PANEL</button>
-        </div>
-    </div>
-
-    <!-- HEADER -->
-    <div class="mobile-header">
-        <div class="nav-scroller">
-            <div class="nav-pill active" onclick="switchPanel(0)">📊 Panel</div>
-            <div class="nav-pill" onclick="switchPanel(1)">⚙️ Datos</div>
-            <div class="nav-pill" onclick="switchPanel(2)">🏆 Premios</div>
-            <div class="nav-pill" onclick="switchPanel(3)">📸 WebP</div>
-        </div>
-    </div>
-
-    <!-- MAIN CON ID PARA TOUCH EVENT -->
-    <main id="main-editor">
-        <!-- PANEL 0: DASHBOARD -->
-        <div id="panel-0" class="panel active">
-            <h1>Resumen del Sorteo</h1>
-            
-            <div class="preview-box" onclick="openPreview()">
-                <div style="font-size: 1.1rem; font-weight: 800;">👁️ Vista Previa</div>
-                <div style="font-size: 0.8rem; opacity: 0.8;">Ver cambios antes de publicar</div>
-            </div>
-
-            <div class="card" style="display:flex; gap:10px; text-align:center;">
-                <div style="flex:1; background:#111; padding:8px; border-radius:8px;">
-                    <span id="stat-sold" style="font-size:1.5rem; font-weight:800; color:var(--sold); display:block;">0</span>
-                    <span style="font-size:0.6rem; color:#aaa;">VENDIDOS</span>
-                </div>
-                <div style="flex:1; background:#111; padding:8px; border-radius:8px;">
-                    <span id="stat-reserved" style="font-size:1.5rem; font-weight:800; color:var(--reserved); display:block;">0</span>
-                    <span style="font-size:0.6rem; color:#aaa;">RESERVADOS</span>
-                </div>
-                <div style="flex:1; background:#111; padding:8px; border-radius:8px;">
-                    <span id="stat-free" style="font-size:1.5rem; font-weight:800; color:var(--free); display:block;">0</span>
-                    <span style="font-size:0.6rem; color:#aaa;">LIBRES</span>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3 style="display:flex; justify-content:space-between; margin-top:0;">Recaudación Est. <span id="stat-money" style="color:white;">$0</span></h3>
-                <p style="font-size:0.75rem; color:#aaa; margin-bottom:10px;">Basado en números vendidos.</p>
-                <button class="btn-outline" style="border-color:var(--danger); color:var(--danger);" onclick="resetDefault()">⚠️ REINICIAR DE FÁBRICA</button>
-                
-                <div id="restore-notice" class="restore-box">
-                    <p>💾 Se encontraron datos guardados</p>
-                    <button class="btn-primary" style="margin:0;" onclick="loadDraft()">RESTAURAR BORRADOR</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- PANEL 1: CONFIGURACIÓN -->
-        <div id="panel-1" class="panel">
-            <h1>Configuración</h1>
-            <div class="card">
-                <div class="input-group">
-                    <label>Título (Texto)</label>
-                    <input type="text" id="cfg-title" oninput="saveToDraft(false)" placeholder="Ej: Gran Rifa Solidaria">
-                </div>
-
-                <div class="input-group" style="background:rgba(0,0,0,0.2); padding:8px; border-radius:8px; border:1px solid #334155;">
-                    <label style="color:var(--accent)">URL Logo (Opcional)</label>
-                    <!-- LAYOUT MODIFICADO: INPUT + NUBE + PEGAR -->
-                    <div class="input-with-btn">
-                        <input type="text" id="cfg-logo" oninput="saveToDraft(false)" placeholder="https://..." style="margin:0;">
-                        <button class="btn-outline" onclick="triggerUpload('cfg-logo')">☁️</button>
-                        <button class="btn-outline" onclick="pasteToInput('cfg-logo')">📋</button>
-                    </div>
-                    <div style="display:flex; align-items:center; gap:10px; margin-top:5px;">
-                        <label style="margin:0; min-width:70px;">Tamaño: <span id="logo-scale-val">50</span>%</label>
-                        <input type="range" id="cfg-logo-scale" min="10" max="100" step="5" value="50" oninput="updateScaleVal(this.value); saveToDraft(false);" style="margin:0;">
-                    </div>
-                </div>
-
-                <div class="input-row">
-                    <div>
-                        <label>Precio ($)</label>
-                        <input type="number" id="cfg-price" oninput="saveToDraft(false)" placeholder="1000">
-                    </div>
-                    <div>
-                        <label>Fecha (Interna)</label>
-                        <input type="text" id="cfg-date" oninput="saveToDraft(false)" placeholder="Ej: 25/12">
-                    </div>
-                </div>
-
-                <div class="input-row">
-                    <div>
-                        <label>Alias / CBU</label>
-                        <input type="text" id="cfg-cbu" oninput="saveToDraft(false)" placeholder="alias.pago">
-                    </div>
-                    <div>
-                        <label>WhatsApp</label>
-                        <div style="display:flex; align-items:stretch;">
-                            <span style="background:#222; padding:0 5px; border-radius:6px 0 0 6px; color:#888; border:1px solid var(--border-color); border-right:none; display:flex; align-items:center; font-size:0.75rem;">+549</span>
-                            <input type="tel" id="cfg-whatsapp" oninput="saveToDraft(false)" placeholder="11223344" style="border-radius:0 6px 6px 0; margin-bottom:0;">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="input-group">
-                    <label>Mensaje Pie de Página</label>
-                    <input type="text" id="cfg-footer-msg" oninput="saveToDraft(false)" placeholder="Ej: ¡Gracias por colaborar!">
-                </div>
-
-                <div class="input-group">
-                    <label>Banner Principal (URL)</label>
-                    <!-- LAYOUT MODIFICADO: INPUT + NUBE + PEGAR -->
-                    <div class="input-with-btn">
-                        <input type="text" id="cfg-banner" oninput="saveToDraft(false)" style="margin:0;">
-                        <button class="btn-outline" onclick="triggerUpload('cfg-banner')">☁️</button>
-                        <button class="btn-outline" onclick="pasteToInput('cfg-banner')">📋</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card" style="border-color: #3b82f6; background:#0f172a;">
-                <h3 style="color:#60a5fa; margin-top:0;">☁️ GitHub API</h3>
-                <div class="input-row">
-                    <div><label>Usuario</label><input type="text" id="gh-user"></div>
-                    <div><label>Repositorio</label><input type="text" id="gh-repo"></div>
-                </div>
-                <label>Token</label><input type="password" id="gh-token">
-                <button class="btn-primary" style="background:#3b82f6; margin-bottom:0;" onclick="saveGithubConfig()">💾 Guardar API</button>
-            </div>
-
-            <div class="card" style="border-color: #f59e0b; background:#0f172a;">
-                <h3 style="color:#f59e0b; margin-top:0;">🔐 Seguridad</h3>
-                <button class="btn-outline" style="width:100%; margin:0;" onclick="openPassModal()">CAMBIAR CONTRASEÑA DE ACCESO</button>
-            </div>
-        </div>
-
-        <!-- PANEL 2: PREMIOS Y NUMEROS (UNIFICADO) -->
-        <div id="panel-2" class="panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <h1>Premios</h1>
-                <button class="btn-success" style="width:auto; padding:5px 15px;" onclick="openPrizeModal()">+</button>
-            </div>
-            <div id="prizes-list"></div>
-
-            <h2 style="margin-top:30px; border-bottom:1px solid #334155; padding-bottom:5px;">Control de Números</h2>
-            <div class="card">
-                <div style="display:flex; align-items:end; gap:10px; margin-bottom:10px;">
-                    <div style="flex:1;">
-                        <label>Total de Números</label>
-                        <input type="number" id="ticket-total" value="100" style="margin:0;">
-                    </div>
-                    <button class="btn-primary" style="width:auto; margin:0;" onclick="generateGrid()">GENERAR</button>
-                </div>
-                
-                <div style="display:flex; gap:10px; margin-bottom:10px; justify-content:center; font-size:0.75rem;">
-                    <span style="color:var(--free)">🟢 Libre</span>
-                    <span style="color:var(--sold)">🔴 Vendido</span>
-                    <span style="color:var(--reserved)">🟠 Reservado</span>
-                </div>
-                
-                <div id="grid-container" class="ticket-grid"></div>
-            </div>
-        </div>
-
-        <!-- PANEL 3: FOTOS (WEB CONVERTER) -->
-        <div id="panel-3" class="panel">
-            <h1>FOTOS & <span>HISTORIAL</span></h1>
-            
-            <div class="card" style="background:#1e1b29; border:1px solid #333;">
-                <p style="font-size:0.85rem; color:#aaa; margin-bottom:15px;">Sube fotos y mantén un registro histórico recuperable.</p>
-                <div class="upload-zone" onclick="triggerUpload(null)">
-                    <span style="font-size:1.2rem;">📸</span> SUBIR NUEVA FOTO
-                </div>
-                <div id="upload-status" style="margin-top:10px; color:var(--accent); text-align:center; font-size:0.8rem;"></div>
-            </div>
-
-            <!-- CABECERA MODIFICADA: HISTORIAL IZQ, LIMPIAR DER, SIN PEGAR -->
-            <div class="history-header">
-                <!-- Izquierda: Título -->
-                <h3 style="margin:0; display:flex; align-items:center; gap:5px;">📂 HISTORIAL</h3>
-                
-                <!-- Derecha: Limpiar Todo -->
-                <button class="btn-outline" style="width:auto; border-color:var(--danger); color:var(--danger); padding:4px 10px; font-size:0.7rem;" onclick="clearHistory()">🗑️ Limpiar Todo</button>
-            </div>
-            <p style="font-size:0.7rem; color:#666; margin-bottom:15px;">Toca la foto para verla. Usa la "X" para borrar del historial Y de GitHub.</p>
-            
-            <div id="history-list"></div>
-        </div>
-    </main>
-
-    <!-- FAB -->
-    <div class="fab-container" style="grid-template-columns: repeat(5, 1fr);">
-        <button class="fab-btn" onclick="saveToDraft(true)"><span class="fab-icon">💾</span>Guardar</button>
-        <button class="fab-btn" style="color:#60a5fa;" onclick="publishSite()"><span class="fab-icon">🚀</span>Publicar</button>
-        <button class="fab-btn" onclick="exportBackup()"><span class="fab-icon">📥</span>Backup</button>
-        <button class="fab-btn" onclick="document.getElementById('importFile').click()"><span class="fab-icon">📤</span>Restaurar</button>
-        <button class="fab-btn" onclick="downloadIndex()"><span class="fab-icon">⬇️</span>Index</button>
-    </div>
-    <input type="file" id="importFile" style="display:none" onchange="importData(this)">
-
-    <!-- MODAL PREMIO -->
-    <div id="prize-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h3 style="color:white;">Editar Premio</h3>
-            <input type="hidden" id="pz-id">
-            <label>Nº Puesto</label>
-            <input type="number" id="pz-rank" placeholder="Ej: 1">
-            
-            <label>Descripción</label>
-            <input type="text" id="pz-title" placeholder="Ej: Play Station 5">
-            <label>Imagen (URL)</label>
-            <!-- LAYOUT MODIFICADO: INPUT + NUBE + PEGAR -->
-            <div class="input-with-btn">
-                <input type="text" id="pz-img" placeholder="https://..." style="margin:0;">
-                <button class="btn-outline" onclick="triggerUpload('pz-img')">☁️</button>
-                <button class="btn-outline" onclick="pasteToInput('pz-img')">📋</button>
-            </div>
-            <div style="margin-top:20px; display:flex; gap:10px;">
-                <button class="btn-success" onclick="savePrize()">GUARDAR</button>
-                <button class="btn-outline" style="border-color:var(--danger); color:var(--danger);" onclick="deletePrize()">ELIMINAR</button>
-            </div>
-            <button class="btn-outline" style="margin-top:10px;" onclick="document.getElementById('prize-modal').classList.remove('open')">CANCELAR</button>
-        </div>
-    </div>
-
-    <!-- MODAL PASSWORD -->
-    <div id="pass-modal" class="modal-overlay">
-        <div class="modal-content" style="max-width:300px;">
-            <h3 style="color:white;">Cambiar Contraseña</h3>
-            <label>Nueva Contraseña</label>
-            <input type="password" id="new-pass" placeholder="****" inputmode="numeric" style="text-align:center; letter-spacing:5px;">
-            <button class="btn-primary" onclick="saveNewPass()">GUARDAR</button>
-            <button class="btn-outline" onclick="document.getElementById('pass-modal').classList.remove('open')">CANCELAR</button>
-        </div>
-    </div>
-
-    <!-- MASTER TEMPLATE (LA WEB PUBLICA) -->
-    <textarea id="master-template" style="display:none;">
-<!DOCTYPE html>
-<html lang="es">
-<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${db.config.title}</title>
+<title>SALE O SALE</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
@@ -387,12 +33,12 @@
     <!-- HERO COMPACTO -->
     <div class="relative w-full h-40 sm:h-56 overflow-hidden shadow-2xl">
         <div class="absolute inset-0 z-0 bg-slate-900">
-             <img src="${db.config.banner}" class="w-full h-full object-cover">
+             <img src="https://raw.githubusercontent.com/ElNoNo26/El-NoNo/refs/heads/main/logo.webp" class="w-full h-full object-cover">
              <div class="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/80 to-transparent"></div>
         </div>
         <div class="relative z-10 w-full h-full flex flex-col items-center justify-center text-center px-4">
             <div class="mb-0 w-full flex justify-center">
-                DB_TITLE_OR_LOGO_PLACEHOLDER
+                <img src="https://raw.githubusercontent.com/ElNoNo26/Sorteo/main/uploads/img_1770414565940.webp" style="width: 80%; max-width: 500px; height: auto;" class="object-contain drop-shadow-xl animate-fade-in">
             </div>
         </div>
     </div>
@@ -405,7 +51,37 @@
             </h2>
         </div>
         <div class="grid grid-cols-2 gap-3 sm:gap-4">
-            DB_PRIZES_PLACEHOLDER
+            
+                <div class="relative bg-slate-900 border border-yellow-500/30 rounded-lg overflow-hidden group">
+                    <div class="absolute top-0 w-full bg-yellow-500 text-black font-bold text-[0.6rem] uppercase py-1 text-center shadow-md z-10 truncate px-2">
+                        1° PREMIO
+                    </div>
+                    <div class="h-32 bg-black mt-5 cursor-zoom-in relative" onclick="viewImg('https://image2url.com/r2/default/images/1770399980619-afdbc503-82a8-40b6-b745-9f3d7e8f158f.png')">
+                        <img src="https://image2url.com/r2/default/images/1770399980619-afdbc503-82a8-40b6-b745-9f3d7e8f158f.png" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition">
+                        <div class="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1">
+                            🔍 Ver foto
+                        </div>
+                    </div>
+                    <div class="p-2 text-center bg-slate-900">
+                        <h3 class="text-white font-bold text-xs uppercase leading-tight truncate">Organizador </h3>
+                    </div>
+                </div>
+            
+                <div class="relative bg-slate-900 border border-yellow-500/30 rounded-lg overflow-hidden group">
+                    <div class="absolute top-0 w-full bg-yellow-500 text-black font-bold text-[0.6rem] uppercase py-1 text-center shadow-md z-10 truncate px-2">
+                        2° PREMIO
+                    </div>
+                    <div class="h-32 bg-black mt-5 cursor-zoom-in relative" onclick="viewImg('https://image2url.com/r2/default/images/1770411314646-b6fdcff5-5d8c-4ddc-a996-eace7c4c9173.jpg')">
+                        <img src="https://image2url.com/r2/default/images/1770411314646-b6fdcff5-5d8c-4ddc-a996-eace7c4c9173.jpg" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition">
+                        <div class="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1">
+                            🔍 Ver foto
+                        </div>
+                    </div>
+                    <div class="p-2 text-center bg-slate-900">
+                        <h3 class="text-white font-bold text-xs uppercase leading-tight truncate">Mesita Plegable </h3>
+                    </div>
+                </div>
+            
         </div>
     </div>
 
@@ -421,12 +97,12 @@
                 </div>
                 <div class="flex flex-col items-end">
                     <span class="text-xs text-gray-400 uppercase font-bold">Valor</span>
-                    <span class="text-4xl font-black text-green-400 drop-shadow-lg" style="text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);">$${db.config.price}</span>
+                    <span class="text-4xl font-black text-green-400 drop-shadow-lg" style="text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);">$1000</span>
                 </div>
             </div>
 
             <div class="grid grid-cols-10 gap-1 sm:gap-2">
-                DB_GRID_PLACEHOLDER
+                <div class="ticket-cell free" onclick="toggleTicket('01', this)">01</div><div class="ticket-cell free" onclick="toggleTicket('02', this)">02</div><div class="ticket-cell free" onclick="toggleTicket('03', this)">03</div><div class="ticket-cell free" onclick="toggleTicket('04', this)">04</div><div class="ticket-cell free" onclick="toggleTicket('05', this)">05</div><div class="ticket-cell free" onclick="toggleTicket('06', this)">06</div><div class="ticket-cell free" onclick="toggleTicket('07', this)">07</div><div class="ticket-cell free" onclick="toggleTicket('08', this)">08</div><div class="ticket-cell free" onclick="toggleTicket('09', this)">09</div><div class="ticket-cell free" onclick="toggleTicket('10', this)">10</div><div class="ticket-cell free" onclick="toggleTicket('11', this)">11</div><div class="ticket-cell free" onclick="toggleTicket('12', this)">12</div><div class="ticket-cell free" onclick="toggleTicket('13', this)">13</div><div class="ticket-cell free" onclick="toggleTicket('14', this)">14</div><div class="ticket-cell free" onclick="toggleTicket('15', this)">15</div><div class="ticket-cell free" onclick="toggleTicket('16', this)">16</div><div class="ticket-cell free" onclick="toggleTicket('17', this)">17</div><div class="ticket-cell free" onclick="toggleTicket('18', this)">18</div><div class="ticket-cell free" onclick="toggleTicket('19', this)">19</div><div class="ticket-cell free" onclick="toggleTicket('20', this)">20</div><div class="ticket-cell free" onclick="toggleTicket('21', this)">21</div><div class="ticket-cell free" onclick="toggleTicket('22', this)">22</div><div class="ticket-cell free" onclick="toggleTicket('23', this)">23</div><div class="ticket-cell free" onclick="toggleTicket('24', this)">24</div><div class="ticket-cell free" onclick="toggleTicket('25', this)">25</div><div class="ticket-cell free" onclick="toggleTicket('26', this)">26</div><div class="ticket-cell free" onclick="toggleTicket('27', this)">27</div><div class="ticket-cell free" onclick="toggleTicket('28', this)">28</div><div class="ticket-cell free" onclick="toggleTicket('29', this)">29</div><div class="ticket-cell free" onclick="toggleTicket('30', this)">30</div><div class="ticket-cell free" onclick="toggleTicket('31', this)">31</div><div class="ticket-cell free" onclick="toggleTicket('32', this)">32</div><div class="ticket-cell free" onclick="toggleTicket('33', this)">33</div><div class="ticket-cell free" onclick="toggleTicket('34', this)">34</div><div class="ticket-cell free" onclick="toggleTicket('35', this)">35</div><div class="ticket-cell free" onclick="toggleTicket('36', this)">36</div><div class="ticket-cell free" onclick="toggleTicket('37', this)">37</div><div class="ticket-cell free" onclick="toggleTicket('38', this)">38</div><div class="ticket-cell free" onclick="toggleTicket('39', this)">39</div><div class="ticket-cell free" onclick="toggleTicket('40', this)">40</div><div class="ticket-cell free" onclick="toggleTicket('41', this)">41</div><div class="ticket-cell free" onclick="toggleTicket('42', this)">42</div><div class="ticket-cell free" onclick="toggleTicket('43', this)">43</div><div class="ticket-cell free" onclick="toggleTicket('44', this)">44</div><div class="ticket-cell free" onclick="toggleTicket('45', this)">45</div><div class="ticket-cell free" onclick="toggleTicket('46', this)">46</div><div class="ticket-cell free" onclick="toggleTicket('47', this)">47</div><div class="ticket-cell free" onclick="toggleTicket('48', this)">48</div><div class="ticket-cell free" onclick="toggleTicket('49', this)">49</div><div class="ticket-cell free" onclick="toggleTicket('50', this)">50</div>
             </div>
             
             <div class="flex justify-center gap-4 text-[10px] mt-4 font-bold uppercase text-gray-400">
@@ -441,7 +117,7 @@
     <div class="max-w-md mx-auto px-4 mt-4 text-center pb-0">
         <div class="bg-indigo-900/30 border border-indigo-500/20 p-4 rounded-xl">
             <p class="text-indigo-300 text-[10px] uppercase font-bold mb-1">ALIAS / CBU</p>
-            <p class="text-lg font-mono text-white select-all bg-black/20 py-2 rounded mb-2">${db.config.cbu}</p>
+            <p class="text-lg font-mono text-white select-all bg-black/20 py-2 rounded mb-2">gra.salas23</p>
             
             <div class="flex flex-col items-center gap-2 mt-4">
                 <button id="btnSendVoucher" class="bg-green-600 text-white text-xs font-bold px-6 py-3 rounded-full shadow hover:bg-green-500 transition w-full max-w-[250px] uppercase tracking-wide">
@@ -452,7 +128,7 @@
     </div>
 
     <footer class="text-center py-4 text-xs text-gray-500 font-bold tracking-widest mt-2 mb-16">
-        ${db.config.footerMsg}
+        ¡Gracias por participar!
     </footer>
 
     <!-- CART BAR (Fixed Bottom) -->
@@ -472,7 +148,7 @@
             <!-- Glow background effect -->
             <div class="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-32 bg-blue-500/20 blur-3xl rounded-full pointer-events-none"></div>
             
-            <button onclick="document.getElementById('buyModal').style.display='none'" class="absolute top-2 right-4 text-2xl text-gray-500 hover:text-white z-10">&times;</button>
+            <button onclick="document.getElementById('buyModal').style.display='none'" class="absolute top-2 right-4 text-2xl text-gray-500 hover:text-white z-10">×</button>
             
             <div class="text-6xl mb-4 relative z-10 animate-pulse">🎟️✨</div>
             
@@ -497,10 +173,10 @@
 
     <script>
         // LOGICA DE CARRITO Y SELECCION
-        const ticketPrice = ${db.config.price};
+        const ticketPrice = 1000;
         
         // Whatsapp Link Logic (AUTO +549)
-        const waClean = "${db.config.whatsapp}".replace(/[^0-9]/g, '');
+        const waClean = "1166631401".replace(/[^0-9]/g, '');
         const waFinal = '549' + waClean; 
 
         // Boton Enviar Comprobante (Con Mensaje)
@@ -560,513 +236,4 @@
     </script>
 </body>
 </html>
-    </textarea>
-
-    <script>
-        const defaultDB = {
-            config: { title: "SALE O SALE", logo: "", logoScale: "50", date: "Sortea Pronto", price: "1000", cbu: "alias.ejemplo", whatsapp: "", footerMsg: "¡Gracias por participar!", banner: "https://via.placeholder.com/800x400/1e293b/ffffff?text=BANNER" },
-            prizes: [],
-            tickets: { total: 100, status: {} }, 
-            images: []
-        };
-        
-        let db = JSON.parse(JSON.stringify(defaultDB));
-        let uploadTargetInput = null; // Para saber qué input rellenar al subir
-        let currentPanelIndex = 0; // Para el swipe
-
-        // --- AUTH & INIT ---
-        function checkLogin() {
-            if(document.getElementById('login-pass').value === (localStorage.getItem('rifa_pass') || '1234')) {
-                document.getElementById('login-screen').style.display = 'none';
-                checkForDraft(); 
-                loadGithubConfig();
-            } else alert('Contraseña incorrecta');
-        }
-
-        // --- PASSWORD CHANGE ---
-        function openPassModal() { document.getElementById('pass-modal').classList.add('open'); }
-        function saveNewPass() {
-            const p = document.getElementById('new-pass').value;
-            if(p.length < 4) return alert("Mínimo 4 caracteres");
-            localStorage.setItem('rifa_pass', p);
-            alert("Contraseña actualizada");
-            document.getElementById('pass-modal').classList.remove('open');
-        }
-
-        // --- RESTORE DRAFT CHECK ---
-        function checkForDraft() {
-            const d = localStorage.getItem('rifa_draft');
-            if(d) {
-                document.getElementById('restore-notice').style.display = 'block';
-                refreshUI(); 
-            } else {
-                refreshUI();
-            }
-        }
-
-        // --- CORE UI & SWIPE LOGIC ---
-        function switchPanel(idx) {
-            currentPanelIndex = idx;
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            document.getElementById('panel-'+idx).classList.add('active');
-            document.querySelectorAll('.nav-pill').forEach((n,i) => i===idx ? n.classList.add('active') : n.classList.remove('active'));
-        }
-
-        // SWIPE IMPLEMENTATION
-        let touchStartX = 0;
-        const mainEl = document.getElementById('main-editor');
-        
-        mainEl.addEventListener('touchstart', e => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, {passive: true});
-
-        mainEl.addEventListener('touchend', e => {
-            const touchEndX = e.changedTouches[0].screenX;
-            const threshold = 50; 
-            if (touchEndX < touchStartX - threshold) { // Swipe Left -> Next
-                if(currentPanelIndex < 3) switchPanel(currentPanelIndex + 1);
-            }
-            if (touchEndX > touchStartX + threshold) { // Swipe Right -> Prev
-                if(currentPanelIndex > 0) switchPanel(currentPanelIndex - 1);
-            }
-        }, {passive: true});
-
-
-        function updateScaleVal(val) {
-            document.getElementById('logo-scale-val').innerText = val;
-        }
-
-        function refreshUI() {
-            // Stats
-            let s=0, r=0, f=0;
-            const total = parseInt(db.tickets.total) || 100;
-            for(let i=0; i<total; i++) {
-                const st = db.tickets.status[i];
-                if(st === 'sold') s++; else if(st === 'reserved') r++; else f++;
-            }
-            document.getElementById('stat-sold').innerText = s;
-            document.getElementById('stat-reserved').innerText = r;
-            document.getElementById('stat-free').innerText = f;
-            document.getElementById('stat-money').innerText = '$' + (s * (parseInt(db.config.price)||0)).toLocaleString();
-
-            // Config Form
-            document.getElementById('cfg-title').value = db.config.title;
-            document.getElementById('cfg-logo').value = db.config.logo || '';
-            document.getElementById('cfg-logo-scale').value = db.config.logoScale || 50;
-            updateScaleVal(db.config.logoScale || 50);
-            
-            document.getElementById('cfg-date').value = db.config.date;
-            document.getElementById('cfg-price').value = db.config.price;
-            document.getElementById('cfg-cbu').value = db.config.cbu;
-            document.getElementById('cfg-whatsapp').value = db.config.whatsapp;
-            document.getElementById('cfg-footer-msg').value = db.config.footerMsg || '';
-            document.getElementById('cfg-banner').value = db.config.banner;
-
-            // Grids & Lists
-            renderPrizes();
-            document.getElementById('ticket-total').value = db.tickets.total;
-            renderGrid();
-            renderHistory();
-        }
-
-        function saveToDraft(notify=true) {
-            db.config.title = document.getElementById('cfg-title').value;
-            db.config.logo = document.getElementById('cfg-logo').value;
-            db.config.logoScale = document.getElementById('cfg-logo-scale').value;
-            db.config.date = document.getElementById('cfg-date').value;
-            db.config.price = document.getElementById('cfg-price').value;
-            db.config.cbu = document.getElementById('cfg-cbu').value;
-            db.config.whatsapp = document.getElementById('cfg-whatsapp').value;
-            db.config.footerMsg = document.getElementById('cfg-footer-msg').value;
-            db.config.banner = document.getElementById('cfg-banner').value;
-            
-            localStorage.setItem('rifa_draft', JSON.stringify(db));
-            document.getElementById('restore-notice').style.display = 'none'; 
-            if(notify) showToast("Guardado localmente");
-        }
-
-        function loadDraft() {
-            const d = localStorage.getItem('rifa_draft');
-            if(d) {
-                db = JSON.parse(d);
-                document.getElementById('restore-notice').style.display = 'none'; 
-                refreshUI();
-                showToast("Datos restaurados");
-            }
-        }
-
-        function resetDefault() {
-            if(confirm("¿Borrar todo y empezar de cero?")) {
-                db = JSON.parse(JSON.stringify(defaultDB));
-                refreshUI();
-                document.getElementById('restore-notice').style.display = 'none'; 
-            }
-        }
-
-        function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
-
-        // --- PREMIOS ---
-        function renderPrizes() {
-            const list = document.getElementById('prizes-list');
-            list.innerHTML = db.prizes.map((p,i) => `
-                <div class="prize-item" onclick="openPrizeModal(${i})">
-                    <img src="${p.img||''}" class="prize-img-sm" onerror="this.style.backgroundColor='#333'">
-                    <div style="flex:1;">
-                        <div style="color:var(--accent); font-weight:bold; font-size:0.8rem;">Puesto: ${p.rank}</div>
-                        <div style="font-weight:bold; color:white;">${p.title}</div>
-                    </div>
-                    <span>✏️</span>
-                </div>
-            `).join('');
-        }
-
-        function openPrizeModal(idx=null) {
-            if(idx!==null) {
-                const p = db.prizes[idx];
-                document.getElementById('pz-id').value = idx;
-                document.getElementById('pz-rank').value = p.rank;
-                document.getElementById('pz-title').value = p.title;
-                document.getElementById('pz-img').value = p.img;
-            } else {
-                document.getElementById('pz-id').value = "";
-                ['pz-rank','pz-title','pz-img'].forEach(id=>document.getElementById(id).value="");
-            }
-            document.getElementById('prize-modal').classList.add('open');
-        }
-
-        function savePrize() {
-            const id = document.getElementById('pz-id').value;
-            const obj = { 
-                rank: document.getElementById('pz-rank').value,
-                title: document.getElementById('pz-title').value,
-                img: document.getElementById('pz-img').value
-            };
-            if(id!=="") db.prizes[id] = obj;
-            else db.prizes.push(obj);
-            
-            document.getElementById('prize-modal').classList.remove('open');
-            saveToDraft(false); refreshUI();
-        }
-        
-        function deletePrize() {
-            const id = document.getElementById('pz-id').value;
-            if(id!=="") { db.prizes.splice(id,1); document.getElementById('prize-modal').classList.remove('open'); saveToDraft(false); refreshUI(); }
-        }
-
-        // --- NUMEROS (GRID) ---
-        function generateGrid() {
-            const newTotal = parseInt(document.getElementById('ticket-total').value);
-            if(confirm(`¿Cambiar grilla a ${newTotal} números? (No borra estados si el número existe)`)) {
-                db.tickets.total = newTotal;
-                saveToDraft(false); refreshUI();
-            }
-        }
-
-        function renderGrid() {
-            const container = document.getElementById('grid-container');
-            let html = '';
-            for(let i=0; i<db.tickets.total; i++) {
-                const st = db.tickets.status[i] || 'free'; 
-                // START AT 01 LOGIC
-                const displayNum = i + 1;
-                const pad = displayNum < 10 ? '0' + displayNum : displayNum;
-                html += `<div class="ticket-cell ${st}" onclick="cycleTicket(${i})">${pad}</div>`;
-            }
-            container.innerHTML = html;
-        }
-
-        function cycleTicket(idx) {
-            const states = ['free', 'reserved', 'sold'];
-            const current = db.tickets.status[idx] || 'free';
-            let next = states[(states.indexOf(current) + 1) % 3];
-            
-            if(next === 'free') delete db.tickets.status[idx];
-            else db.tickets.status[idx] = next;
-            
-            saveToDraft(false); refreshUI();
-        }
-
-        // --- GITHUB & DEPLOY ---
-        function loadGithubConfig() {
-            const c = JSON.parse(localStorage.getItem('rifa_github')||'{}');
-            document.getElementById('gh-user').value = c.user||'';
-            document.getElementById('gh-repo').value = c.repo||'';
-            document.getElementById('gh-token').value = c.token||'';
-        }
-        function saveGithubConfig() {
-            localStorage.setItem('rifa_github', JSON.stringify({
-                user: document.getElementById('gh-user').value,
-                repo: document.getElementById('gh-repo').value,
-                token: document.getElementById('gh-token').value
-            }));
-            showToast("API Guardada");
-        }
-
-        // FUNCIÓN GLOBAL PARA DISPARAR SUBIDA
-        function triggerUpload(targetId) {
-            uploadTargetInput = targetId;
-            document.getElementById('globalImgInput').click();
-        }
-
-        async function pasteToInput(targetId) {
-            try {
-                const text = await navigator.clipboard.readText();
-                if(text) {
-                    document.getElementById(targetId).value = text;
-                    saveToDraft(false);
-                    showToast("Pegado");
-                }
-            } catch (e) {
-                alert("Permiso denegado o no soportado: " + e);
-            }
-        }
-
-        async function uploadImage(input) {
-            if(!input.files[0]) return;
-            const file = input.files[0];
-            const reader = new FileReader();
-            document.getElementById('upload-status').innerText = "Procesando...";
-            
-            reader.onload = async function(e) {
-                const img = new Image(); img.src = e.target.result;
-                img.onload = async function() {
-                    const canvas = document.createElement('canvas'); const ctx = canvas.getContext('2d');
-                    const scale = 800 / Math.max(img.width, img.height);
-                    canvas.width = img.width * scale; canvas.height = img.height * scale;
-                    ctx.drawImage(img,0,0,canvas.width,canvas.height);
-                    
-                    const base64 = canvas.toDataURL('image/webp', 0.8).split(',')[1];
-                    const gh = JSON.parse(localStorage.getItem('rifa_github')||'{}');
-                    if(!gh.token) { alert("Configura GitHub primero"); return; }
-                    
-                    const filename = `img_${Date.now()}.webp`;
-                    const url = `https://api.github.com/repos/${gh.user}/${gh.repo}/contents/uploads/${filename}`;
-                    
-                    document.getElementById('upload-status').innerText = "Subiendo a GitHub...";
-                    
-                    try {
-                        const req = await fetch(url, {
-                            method: 'PUT',
-                            headers: { Authorization: `token ${gh.token}`, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ message: "Upload", content: base64 })
-                        });
-                        const res = await req.json();
-                        if(req.ok) {
-                            // Guardamos OBJETO con metadatos
-                            const newImg = {
-                                url: res.content.download_url,
-                                path: res.content.path,
-                                sha: res.content.sha,
-                                date: new Date().toLocaleString()
-                            };
-                            db.images.unshift(newImg);
-                            
-                            // Si se disparó desde un input específico, rellenarlo
-                            if(uploadTargetInput) {
-                                document.getElementById(uploadTargetInput).value = newImg.url;
-                                saveToDraft(false);
-                                uploadTargetInput = null; // Resetear target
-                                // Si era logo, actualizar vista previa si aplica
-                                refreshUI();
-                            } else {
-                                saveToDraft(false);
-                            }
-                            
-                            renderHistory();
-                            document.getElementById('upload-status').innerText = "✅ Subida OK.";
-                        } else alert("Error GitHub: " + res.message);
-                    } catch(err) { alert("Error red"); }
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-
-        function renderHistory() {
-            document.getElementById('history-list').innerHTML = (db.images||[]).map((imgObj, idx) => {
-                const url = typeof imgObj === 'string' ? imgObj : imgObj.url;
-                const date = typeof imgObj === 'string' ? '---' : (imgObj.date || '---');
-                
-                return `
-                <div class="history-card">
-                    <img src="${url}" class="history-thumb" onclick="window.open('${url}','_blank')">
-                    <div class="history-info">
-                        <span class="history-url">${url}</span>
-                        <span class="history-date">${date}</span>
-                    </div>
-                    <div class="history-actions">
-                        <button class="btn-icon-sm" onclick="navigator.clipboard.writeText('${url}'); showToast('Copiado')">📋</button>
-                        <button class="btn-icon-sm btn-delete-sm" onclick="deleteImage(${idx})">✖</button>
-                    </div>
-                </div>
-            `}).join('');
-        }
-
-        async function deleteImage(index) {
-            const imgData = db.images[index];
-            const isObj = typeof imgData === 'object';
-            
-            if(!confirm("¿Borrar esta imagen? Se eliminará de la lista y de GitHub.")) return;
-
-            const gh = JSON.parse(localStorage.getItem('rifa_github')||'{}');
-            if(gh.token && isObj && imgData.path) {
-                try {
-                    showToast("Borrando de GitHub...");
-                    const getUrl = `https://api.github.com/repos/${gh.user}/${gh.repo}/contents/${imgData.path}`;
-                    const getReq = await fetch(getUrl, { headers: { Authorization: `token ${gh.token}`}});
-                    
-                    if(getReq.ok) {
-                        const fileData = await getReq.json();
-                        const sha = fileData.sha;
-                        await fetch(getUrl, {
-                            method: 'DELETE',
-                            headers: { Authorization: `token ${gh.token}`, 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ message: "Delete image via Editor", sha: sha })
-                        });
-                    }
-                } catch(e) { console.log("Error deleting remote", e); }
-            }
-
-            db.images.splice(index, 1);
-            saveToDraft(false);
-            renderHistory();
-            showToast("Imagen eliminada");
-        }
-        
-        function clearHistory() {
-            if(confirm("¿Limpiar todo el historial local? (No borra de GitHub)")) {
-                db.images = [];
-                saveToDraft(false);
-                renderHistory();
-            }
-        }
-
-        function exportBackup() {
-            const blob = new Blob([JSON.stringify(db)], {type:'application/json'});
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='rifa-backup.json'; a.click();
-        }
-        function importData(input) {
-            const r = new FileReader(); r.onload=e=>{ db=JSON.parse(e.target.result); saveToDraft(false); refreshUI(); };
-            r.readAsText(input.files[0]);
-        }
-
-        // --- PUBLICAR / PREVIEW / DOWNLOAD ---
-        function getHtml() {
-            let tpl = document.getElementById('master-template').value;
-            
-            let prizesHtml = db.prizes.map(p => {
-                let rankText = p.rank;
-                if(p.rank === '1' || p.rank === 1) rankText = '1° PREMIO';
-                else if(p.rank === '2' || p.rank === 2) rankText = '2° PREMIO';
-                else if(p.rank === '3' || p.rank === 3) rankText = '3° PREMIO';
-                else if(!isNaN(p.rank) && p.rank) rankText = `${p.rank}° PREMIO`;
-
-                return `
-                <div class="relative bg-slate-900 border border-yellow-500/30 rounded-lg overflow-hidden group">
-                    <div class="absolute top-0 w-full bg-yellow-500 text-black font-bold text-[0.6rem] uppercase py-1 text-center shadow-md z-10 truncate px-2">
-                        ${rankText}
-                    </div>
-                    <div class="h-32 bg-black mt-5 cursor-zoom-in relative" onclick="viewImg('${p.img}')">
-                        <img src="${p.img}" class="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition">
-                        <div class="absolute bottom-1 right-1 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded-full backdrop-blur-sm flex items-center gap-1">
-                            🔍 Ver foto
-                        </div>
-                    </div>
-                    <div class="p-2 text-center bg-slate-900">
-                        <h3 class="text-white font-bold text-xs uppercase leading-tight truncate">${p.title}</h3>
-                    </div>
-                </div>
-            `}).join('');
-            
-            let gridHtml = '';
-            for(let i=0; i<db.tickets.total; i++) {
-                const st = db.tickets.status[i] || 'free';
-                const displayNum = i + 1;
-                const pad = displayNum < 10 ? '0' + displayNum : displayNum;
-                const action = st === 'free' ? `onclick="toggleTicket('${pad}', this)"` : '';
-                gridHtml += `<div class="ticket-cell ${st}" ${action}>${pad}</div>`;
-            }
-
-            let titleOrLogoHtml = '';
-            if(db.config.logo && db.config.logo.length > 5) {
-                const scale = db.config.logoScale || 50;
-                titleOrLogoHtml = `<img src="${db.config.logo}" style="width: ${scale}%; max-width: 500px; height: auto;" class="object-contain drop-shadow-xl animate-fade-in">`;
-            } else {
-                titleOrLogoHtml = `
-                    <h1 class="text-4xl sm:text-5xl font-black uppercase tracking-tighter text-white mb-2 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-none">
-                        ${db.config.title}
-                    </h1>`;
-            }
-            
-            const waClean = db.config.whatsapp.replace(/[^0-9]/g, '');
-            const waFinal = '549' + waClean; 
-
-            tpl = tpl.replace('DB_TITLE_OR_LOGO_PLACEHOLDER', titleOrLogoHtml)
-                     .replace('${db.config.title}', db.config.title) 
-                     .replace('${db.config.title}', db.config.title) 
-                     .replace('${db.config.date}', db.config.date) 
-                     .replace('${db.config.banner}', db.config.banner)
-                     .replace('${db.config.price}', db.config.price)
-                     .replace('${db.config.price}', db.config.price) 
-                     .replace('${db.config.price}', db.config.price) 
-                     .replace('${db.config.price}', db.config.price) 
-                     .replace('${db.config.cbu}', db.config.cbu)
-                     .replace('${db.config.footerMsg}', db.config.footerMsg || '')
-                     .replace('"${db.config.whatsapp}"', `"${waClean}"`) 
-                     .replace('DB_PRIZES_PLACEHOLDER', prizesHtml)
-                     .replace('DB_GRID_PLACEHOLDER', gridHtml);
-            
-            return tpl;
-        }
-
-        function openPreview() {
-            saveToDraft(false);
-            const w = window.open();
-            w.document.write(getHtml());
-            w.document.close();
-        }
-
-        function downloadIndex() {
-            const htmlContent = getHtml();
-            const blob = new Blob([htmlContent], { type: 'text/html' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'index.html';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showToast("Descargando index.html...");
-        }
-
-        async function publishSite() {
-            if(!confirm("¿Publicar cambios en la web?")) return;
-            saveToDraft(false);
-            const gh = JSON.parse(localStorage.getItem('rifa_github')||'{}');
-            if(!gh.token) return alert("Falta API Github");
-
-            const content = btoa(unescape(encodeURIComponent(getHtml())));
-            showToast("Subiendo index.html...");
-            
-            try {
-                const url = `https://api.github.com/repos/${gh.user}/${gh.repo}/contents/index.html`;
-                const getReq = await fetch(url, { headers: { Authorization: `token ${gh.token}`}});
-                const getData = getReq.ok ? await getReq.json() : {};
-                
-                const putReq = await fetch(url, {
-                    method: 'PUT',
-                    headers: { Authorization: `token ${gh.token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        message: "Deploy Sorteo",
-                        content: content,
-                        sha: getData.sha
-                    })
-                });
-                
-                if(putReq.ok) alert("✅ SITIO PUBLICADO EXITOSAMENTE");
-                else alert("Error al publicar");
-            } catch(e) { alert("Error: " + e.message); }
-        }
-    </script>
-</body>
-</html>
+    
